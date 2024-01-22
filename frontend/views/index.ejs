@@ -1,0 +1,213 @@
+<!-- frontend/views/index.ejs -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Node.js App</title>
+    <link rel="stylesheet" href="/styles.css">
+
+</head>
+<body>
+    <h1 align="center" >IKEA Absence Management Portal</h1>
+
+    <!-- Dropdown for selecting action -->
+    <form>
+    <label align="left" for="action">Select one of the options:</label>
+    <select id="action" onchange="selectAction()">
+        <option value="submitData">Submit Absence Request</option>
+        <option value="getAllData">All Absence data</option>
+        <option value="getDataByPersonId">Coworker Absence Data</option>
+    </select>
+    <div id="submitDataForm" style="display: none;">
+    </form>
+    <!-- Form for submitting data -->
+    <form action="/api/data" method="POST">
+        <label for="personId">Person ID:</label>
+        <br>
+        <input type="text" name="personId" required>
+        <br>
+        <br>
+        <label for="absenceType">Absence Type:</label>
+        <br>
+        <select id="absenceType" name="absenceType" required>
+          <option value="" disabled selected>Select Absence Type</option>
+          <option type= "text" value="planned">Planned</option>
+          <option type= "text" value="unplanned">Unplanned</option>
+        </select>
+        <br>
+        <br>
+        <label for="subAbsenceType">Absence Sub-Type:</label>
+        <br>
+        <select id="subAbsenceType" name="subAbsenceType" required>
+          <option value="" disabled selected>Select Sub type</option>
+
+           </select>
+           <br>
+           <br>
+        <label for="startDate">Start Date Time:</label>
+        <br>
+        <input type="datetime-local" name="startDate" required>
+        <br>
+        <br>
+        <label for="endDate">End Date Time:</label>
+        <br>
+        <input type="datetime-local" name="endDate" required> 
+        <br>
+        <br>
+        <button align="center" type="submit">Submit</button>
+    </form>
+</div>
+
+
+
+
+    <div id="getAllDataForm" style="display: none;">
+        <!-- Form for fetching all data -->
+        <form onsubmit="fetchData('all'); return false;">
+            <button align="center" type="submit">All Absence data</button>
+        </form>
+    </div>
+
+    <div id="getDataByPersonIdForm" style="display: none;">
+        <!-- Form for fetching data based on personId -->
+        <form onsubmit="fetchData('byPersonId'); return false;">
+            <label for="getPersonId">Coworker Absences by Person ID:</label>
+            <input type="text" id="getPersonId" required>
+            <br>
+            <button align="center" type="submit">Get Data</button>
+        </form>
+    </div>
+
+    <!-- Display fetched data -->
+    <div id="fetchedData"></div>
+</div>
+
+    <script>
+        // Function to handle selecting action and displaying corresponding form
+        function selectAction() {
+            const action = document.getElementById('action').value;
+
+            document.getElementById('submitDataForm').style.display = action === 'submitData' ? 'block' : 'none';
+            document.getElementById('getAllDataForm').style.display = action === 'getAllData' ? 'block' : 'none';
+            document.getElementById('getDataByPersonIdForm').style.display = action === 'getDataByPersonId' ? 'block' : 'none';
+
+            // Clear fetched data when selecting a new action
+            document.getElementById('fetchedData').innerHTML = '';
+        }
+
+
+
+        // Function to handle fetching data asynchronously
+    async function fetchData(option) {
+        const url = option === 'byPersonId'
+            ? `/api/getDataByPersonId?personId=${document.getElementById('getPersonId').value}`
+            : '/api/data';
+
+        try {
+            const response = await fetch(url);
+            const data = await response.json();
+
+            // Display fetched data
+            const fetchedDataDiv = document.getElementById('fetchedData');
+            if (response.status === 404) {
+                fetchedDataDiv.innerHTML = `<p>Data not found for the specified personId</p>`;
+            } else {
+                if (option === 'all') {
+                    // Display data in a table for 'all' option
+                    const table = `<table>
+                        <tr>
+                            <th>Person ID</th>
+                            <th>Absence Type</th>
+                            <th>Sub Absence Type</th>
+                            <th>Start Date</th>
+                            <th>End Date</th>
+                        </tr>
+                        ${data.map(row => `
+                            <tr>
+                                <td>${row.person_id}</td>
+                                <td>${row.absence_type}</td>
+                                <td>${row.sub_absence_type}</td>
+                                <td>${row.start_date}</td>
+                                <td>${row.end_date}</td>
+                            </tr>
+                        `).join('')}
+                    </table>`;
+                    fetchedDataDiv.innerHTML = table;
+                } else {
+                // Display data in a table
+                const table = `<table>
+                    <tr>
+                        <th>Person ID</th>
+                        <th>Absence Type</th>
+                        <th>Sub Absence Type</th>
+                        <th>Start Date</th>
+                        <th>End Date</th>
+                    </tr>
+                    <tr>
+                        <td>${data.person_id}</td>
+                        <td>${data.absence_type}</td>
+                        <td>${data.sub_absence_type}</td>
+                        <td>${data.start_date}</td>
+                        <td>${data.end_date}</td>
+                    </tr>
+                </table>`;
+                fetchedDataDiv.innerHTML = table;
+            }
+        }
+        } catch (error) {
+            console.error('Error fetching data', error);
+
+            // Display error message
+            const fetchedDataDiv = document.getElementById('fetchedData');
+            fetchedDataDiv.innerHTML = `<p>Error fetching data. Please try again.</p>`;
+        }
+    }
+
+
+
+   /////////////////////////////////////////////////////////////////////////////////////
+    // Function to select Sub Absence Type
+    const absencetypeSelect = document.getElementById('absenceType');
+    const subabsencetypeSelect = document.getElementById('subAbsenceType');
+    const resultDiv = document.getElementById('result');
+
+    // Event listener for absencetype dropdown
+    absencetypeSelect.addEventListener('change', () => {
+      const selectedAbsencetype = absencetypeSelect.value;
+      updateSubabsencetypeOptions(selectedAbsencetype);
+    });
+
+    // Function to update subabsencetype dropdown options based on selectedAbsencetype
+    function updateSubabsencetypeOptions(selectedAbsencetype) {
+      // Clear existing options
+      subabsencetypeSelect.innerHTML = '<option value="" disabled selected>Select Sub category</option>';
+
+      // Add options based on selectedAbsencetype
+      if (selectedAbsencetype === 'planned') {
+        const plannedOptions = ['Vacation', 'Parental Leave', 'Maternity Leave','Child care','Time off in lieu', 'Medical appointment', 'Any other'];
+        plannedOptions.forEach((option) => {
+          const optionElement = document.createElement('option');
+          optionElement.value = option.toLowerCase().replace(/\s+/g, '-');
+          optionElement.textContent = option;
+          subabsencetypeSelect.appendChild(optionElement);
+        });
+      } else if (selectedAbsencetype === 'unplanned') {
+        const unplannedOptions = ['Sick', 'Accident on WayToWork ','Accident at Work', 'Any other'];
+        unplannedOptions.forEach((option) => {
+          const optionElement = document.createElement('option');
+          optionElement.value = option.toLowerCase().replace(/\s+/g, '-');
+          optionElement.textContent = option;
+          subabsencetypeSelect.appendChild(optionElement);
+        });
+      }
+    }
+
+
+
+
+//////////////////////////////////////////////////////////////
+
+    </script>
+</body>
+</html>
