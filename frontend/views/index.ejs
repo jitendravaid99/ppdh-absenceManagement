@@ -125,11 +125,11 @@
                         </tr>
                         ${data.map(row => `
                             <tr>
-                                <td>${row.person_id}</td>
-                                <td>${row.absence_type}</td>
-                                <td>${row.sub_absence_type}</td>
-                                <td>${row.start_date}</td>
-                                <td>${row.end_date}</td>
+                                <td>${row.personId}</td>
+                                <td>${row.absenceType}</td>
+                                <td>${row.subAbsenceType}</td>
+                                <td>${row.startDate}</td>
+                                <td>${row.endDate}</td>
                             </tr>
                         `).join('')}
                     </table>`;
@@ -145,11 +145,11 @@
                         <th>End Date</th>
                     </tr>
                     <tr>
-                        <td>${data.person_id}</td>
-                        <td>${data.absence_type}</td>
-                        <td>${data.sub_absence_type}</td>
-                        <td>${data.start_date}</td>
-                        <td>${data.end_date}</td>
+                        <td>${data.personId}</td>
+                        <td>${data.absenceType}</td>
+                        <td>${data.subAbsenceType}</td>
+                        <td>${data.startDate}</td>
+                        <td>${data.endDate}</td>
                     </tr>
                 </table>`;
                 fetchedDataDiv.innerHTML = table;

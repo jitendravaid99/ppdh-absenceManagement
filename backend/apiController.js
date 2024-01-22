@@ -4,7 +4,7 @@ const pool = require('./db')
 
 const getData = async (req, res) => {
   try {
-    const result = await pool.query('SELECT * FROM absTable');
+    const result = await pool.query('SELECT * FROM absenceTable');
     res.json(result.rows);
   } catch (error) {
     console.error('Error executing query', error);
@@ -17,7 +17,7 @@ const postData = async (req, res) => {
 
   try {
     const result = await pool.query(
-      'INSERT INTO absTable(person_id, absence_type, sub_absence_type, start_date, end_date) VALUES($1, $2, $3, $4, $5) RETURNING *',
+      'INSERT INTO absenceTable(personId, absenceType, subAbsenceType, startDate, endDate) VALUES($1, $2, $3, $4, $5) RETURNING *',
       [personId, absenceType, subAbsenceType, startDate, endDate]
     );
     res.json(result.rows[0]);
@@ -32,7 +32,7 @@ const getDataByPersonId = async (req, res) => {
 
   try {
     if (personId) {
-      const result = await pool.query('SELECT * FROM absTable WHERE person_id = $1', [personId]);
+      const result = await pool.query('SELECT * FROM absenceTable WHERE personId = $1', [personId]);
 
       if (result.rows.length === 0) {
         res.status(404).json({ error: 'Data not found for the specified personId' });
@@ -40,7 +40,7 @@ const getDataByPersonId = async (req, res) => {
         res.json(result.rows[0]);
       }
     } else {
-      const result = await pool.query('SELECT * FROM absTable');
+      const result = await pool.query('SELECT * FROM absenceTable');
       res.json(result.rows);
     }
   } catch (error) {
