@@ -5,7 +5,7 @@ const { getData, postData, getDataByPersonId } = require('./apiController');
 const path = require('path');
 
 const app = express();
-const port = process.env.PORT || 8080;
+const port = 8080;
 
 
 
