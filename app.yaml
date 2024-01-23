@@ -1,9 +1,9 @@
 runtime: nodejs16
 
-# The following env variables may contain sensitive information that grants
-# anyone access to your database. Do not add this file to your source control.
 env_variables:
-  
-  CLOUDSQL_USER: postgres
-  CLOUDSQL_PASSWORD: postgres1234
-  CLOUDSQL_DNS: "pgsql: dbname=absenceDB;host=/cloudsql/ingka-pdpp-absence-dev:europe-west4:ppdh-absence-dev-db"
+  env_variables:
+  DB_USER: 'postgres'
+  DB_HOST: '/cloudsql/ingka-pdpp-absence-dev:europe-west4:ppdh-absence-dev-db'
+  DB_NAME: 'absenceDB'
+  DB_PASSWORD: 'postgres1234'
+  DB_PORT: '5432'
